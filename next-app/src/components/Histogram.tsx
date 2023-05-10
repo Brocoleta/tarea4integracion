@@ -12,7 +12,6 @@ export default function Histogram(): JSX.Element {
   const data = useRequestData({}, "montoTotalHistograma");
 
   const [histogramData, setHistogramData] = useState([0, 0, 0, 0, 0, 0, 0]);
-  console.log(histogramData);
   useEffect(() => {
     if (data)
       data.forEach((item) => {
