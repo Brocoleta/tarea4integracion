@@ -1,32 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles } from "tss-react/mui";
-import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
-import { useRequestData } from "../hooks/useRequestData";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 
-interface Restaurant {
-  id: string;
-  name: string;
-  position: {
-    lat: number;
-    long: number;
-  };
-}
-interface Props {
-  restaurants: Restaurant[];
-  destinations: Restaurant[];
-}
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useRequestData } from "../hooks/useRequestData";
+
+import { useCurrentFilter } from "../context/SetFilter";
+import { Box } from "@mui/material";
 
 export default function LastTransactions(): JSX.Element {
-  const { classes } = useStyles();
-
-  const data = useRequestData({}, "lastTransactions");
+  const { currentFilter } = useCurrentFilter();
+  const data = useRequestData(currentFilter, "lastTransactions");
 
   const [rows, setRows] = useState([]);
 
@@ -35,9 +17,20 @@ export default function LastTransactions(): JSX.Element {
   }, [data]);
 
   return (
-    <div>
-      <DataGrid rows={rows} columns={columns} />
-    </div>
+    <Box sx={{ width: "100%" }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 10,
+            },
+          },
+        }}
+        pageSizeOptions={[10]}
+      />
+    </Box>
   );
 }
 
@@ -51,11 +44,3 @@ const columns: GridColDef[] = [
   { field: "account_origin", headerName: "Cuenta Origen", width: 130 },
   { field: "account_destiny", headerName: "Cuenta Destino", width: 130 },
 ];
-
-const useStyles = makeStyles()(() => ({
-  container: {
-    width: "100%",
-    padding: "30px",
-    backgroundColor: "white",
-  },
-}));

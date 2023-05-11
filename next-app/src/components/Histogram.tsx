@@ -4,13 +4,13 @@ import { makeStyles } from "tss-react/mui";
 import { useRequestData } from "../hooks/useRequestData";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { useCurrentFilter } from "../context/SetFilter";
 ChartJS.register(...registerables);
 
 export default function Histogram(): JSX.Element {
   const { classes } = useStyles();
-
-  const data = useRequestData({}, "montoTotalHistograma");
-
+  const { currentFilter } = useCurrentFilter();
+  const data = useRequestData(currentFilter, "montoTotalHistograma");
   const [histogramData, setHistogramData] = useState([0, 0, 0, 0, 0, 0, 0]);
   useEffect(() => {
     if (data)
@@ -69,8 +69,7 @@ export default function Histogram(): JSX.Element {
 
 const useStyles = makeStyles()(() => ({
   container: {
-    maxWidth: "700px",
-    padding: "30px",
+    width: "100%",
     backgroundColor: "white",
   },
 }));

@@ -1,18 +1,33 @@
 import type { AppProps } from "next/app";
 
-import { ThemeProvider2 } from "../src/theme";
 import { CacheProvider } from "@emotion/react";
 
-import createEmotionCache from "../src/theme/createEmotionCache";
+import TopBar from "../src/components/TopBar";
+import { ProvideCurrentFilter } from "../src/context/SetFilter";
 
-const cache = createEmotionCache();
+import { TssCacheProvider } from "tss-react";
+import createCache from "@emotion/cache";
+
+const muiCache = createCache({
+  key: "mui",
+  prepend: true,
+});
+
+const tssCache = createCache({
+  key: "tss",
+});
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <CacheProvider value={cache}>
-      <ThemeProvider2>
-        <Component {...pageProps} />
-      </ThemeProvider2>
+    <CacheProvider value={muiCache}>
+      <TssCacheProvider value={tssCache}>
+        <ProvideCurrentFilter>
+          <div style={{ margin: "0px 90px" }}>
+            <TopBar></TopBar>
+            <Component {...pageProps} />
+          </div>
+        </ProvideCurrentFilter>
+      </TssCacheProvider>
     </CacheProvider>
   );
 }

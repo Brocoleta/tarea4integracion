@@ -8,25 +8,61 @@ const databaseUrl = Deno.env.get("SUPABASE_DB_URL")!;
 const pool = new postgres.Pool(databaseUrl, 3, true);
 
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers":
+          "authorization, x-client-info, apikey, content-type",
+      },
+      status: 200,
+    });
+  }
   try {
     const connection = await pool.connect();
+    const body = await req.json();
+    let filter = "";
+    Object.keys(body).forEach((key) => {
+      if (["bank_origin", "bank_destiny"].includes(key))
+        if (filter != "") filter += ` AND ${key} = '${body[key]}'`;
+        else filter += ` WHERE ${key} = '${body[key]}'`;
+      if (["publish_time"].includes(key)) {
+        const fecha = new Date(body[key]);
+
+        fecha.setHours(0, 0, 0, 0);
+
+        // Obtener el final del día (23:59:59) de la fecha
+        const fechaFin = new Date(fecha);
+        fechaFin.setHours(23, 59, 59, 999);
+
+        // Obtener los valores de fecha y hora en formato de cadena
+        const fechaInicioStr = fecha.toISOString();
+        const fechaFinStr = fechaFin.toISOString();
+        if (filter != "")
+          filter += ` AND publish_time >= TIMESTAMP WITH TIME ZONE '${fechaInicioStr}' AND publish_time <= TIMESTAMP WITH TIME ZONE '${fechaFinStr}'`;
+        else
+          filter += ` WHERE publish_time >= TIMESTAMP WITH TIME ZONE '${fechaInicioStr}' AND publish_time <= TIMESTAMP WITH TIME ZONE '${fechaFinStr}'`;
+      }
+    });
 
     try {
       // Run a query
-      const result = await connection.queryObject`SELECT 
-        CASE 
-          WHEN mount < 10000 THEN 0
-          WHEN mount >= 10000 AND mount <= 49999 THEN 1
-          WHEN mount >= 50000 AND mount <= 99999 THEN 2
-          WHEN mount >= 100000 AND mount <= 499999 THEN 3
-          WHEN mount >= 500000 AND mount <= 999999 THEN 4
-          WHEN mount >= 1000000 AND mount <= 9999999 THEN 5
-          ELSE 6
-        END AS intervalo, 
-        COUNT(*) AS total_mount 
-      FROM transactions 
-      GROUP BY intervalo;
-      `;
+      const query = `SELECT 
+      CASE 
+        WHEN mount < 10000 THEN 0
+        WHEN mount >= 10000 AND mount <= 49999 THEN 1
+        WHEN mount >= 50000 AND mount <= 99999 THEN 2
+        WHEN mount >= 100000 AND mount <= 499999 THEN 3
+        WHEN mount >= 500000 AND mount <= 999999 THEN 4
+        WHEN mount >= 1000000 AND mount <= 9999999 THEN 5
+        ELSE 6
+      END AS intervalo, 
+      COUNT(*) AS total_mount 
+    FROM transactions${filter}
+    GROUP BY intervalo;
+    `;
+      const result = await connection.queryObject(query);
+
       const body = JSON.stringify(
         result.rows,
         (key, value) => (typeof value === "bigint" ? value.toString() : value),

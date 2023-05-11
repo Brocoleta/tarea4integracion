@@ -2,6 +2,8 @@ import React from "react";
 import { makeStyles } from "tss-react/mui";
 
 import { useRequestData } from "../hooks/useRequestData";
+import { useCurrentFilter } from "../context/SetFilter";
+import { Typography } from "@mui/material";
 
 interface Restaurant {
   id: string;
@@ -18,20 +20,21 @@ interface Props {
 
 export default function TotalCount(): JSX.Element {
   const { classes } = useStyles();
+  const { currentFilter } = useCurrentFilter();
 
-  const count = useRequestData({}, "totalCount");
+  const count = useRequestData(currentFilter, "totalCount");
 
   return (
-    <div className={classes.container}>
-      <h2>Total Count: {count ?? 0}</h2>
-    </div>
+    <Typography className={classes.title}>
+      Hay un total de {count ?? 0} transacciones, presione en los acordeones
+      para ver cada estadistica
+    </Typography>
   );
 }
 
 const useStyles = makeStyles()(() => ({
-  container: {
-    width: "100%",
-    padding: "30px",
-    backgroundColor: "white",
+  title: {
+    fontSize: "30px",
+    marginBottom: "20px",
   },
 }));

@@ -10,6 +10,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useCurrentFilter } from "../context/SetFilter";
+import { Box } from "@mui/material";
 
 interface Restaurant {
   id: string;
@@ -26,8 +28,9 @@ interface Props {
 
 export default function TotalByType(): JSX.Element {
   const { classes } = useStyles();
+  const { currentFilter } = useCurrentFilter();
 
-  const data = useRequestData({}, "totalByType");
+  const data = useRequestData(currentFilter, "totalByType");
 
   const [rows, setRows] = useState([
     { id: "2400", count: "0", sum: "0" },
@@ -44,9 +47,9 @@ export default function TotalByType(): JSX.Element {
   }, [data]);
 
   return (
-    <div>
+    <Box sx={{ width: "100%" }}>
       <DataGrid rows={rows} columns={columns} hideFooter={true} />
-    </div>
+    </Box>
   );
 }
 
@@ -59,7 +62,5 @@ const columns: GridColDef[] = [
 const useStyles = makeStyles()(() => ({
   container: {
     width: "100%",
-    padding: "30px",
-    backgroundColor: "white",
   },
 }));
