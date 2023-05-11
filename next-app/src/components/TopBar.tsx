@@ -13,8 +13,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
 import { Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpxc25oZHV0b3hjYWZlcWV6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODMwNjE0MDksImV4cCI6MTk5ODYzNzQwOX0.VWpmnQnv5JKBb62Svi8Q-QswSeuI-yHMZOYrWLUAdlA";
+
 export default function TopBar(): JSX.Element {
   const { currentFilter, setCurrentFilter } = useCurrentFilter();
   const { classes } = useStyles();
@@ -29,7 +28,7 @@ export default function TopBar(): JSX.Element {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_BEARER_TOKEN}`,
       },
       body: JSON.stringify({}),
     }).then(async (response) => {

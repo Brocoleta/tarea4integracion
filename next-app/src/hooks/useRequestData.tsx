@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 
 export const useRequestData = (filters, url: string) => {
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpxc25oZHV0b3hjYWZlcWV6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODMwNjE0MDksImV4cCI6MTk5ODYzNzQwOX0.VWpmnQnv5JKBb62Svi8Q-QswSeuI-yHMZOYrWLUAdlA";
   const [data, setData] = useState(null);
   useEffect(() => {
     const params = {};
@@ -16,7 +14,7 @@ export const useRequestData = (filters, url: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_BEARER_TOKEN}`,
       },
       body: JSON.stringify(params),
     }).then(async (response) => {
